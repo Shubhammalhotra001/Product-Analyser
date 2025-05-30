@@ -1,0 +1,465 @@
+/* Body Reset for Full-Screen Background */
+body {
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+  overflow-x: hidden;
+}
+
+/* Report Card Container */
+.report-card {
+  background: linear-gradient(135deg, #1e3a8a 0%, #60a5fa 100%);
+  border-radius: 2rem;
+  padding: 1.25rem;
+  width: 85%;
+  max-width: 80rem;
+  margin: 1.5rem auto;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2), 0 0 1rem rgba(37, 99, 235, 0.3);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 70vh;
+  opacity: 0;
+  will-change: opacity;
+  transition: opacity 0.35s ease-out;
+}
+
+.report-card.loaded {
+  opacity: 1;
+}
+
+/* Background Effects */
+.report-card::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.report-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.02"%3E%3Ccircle cx="50" cy="50" r="48" fill="none" stroke="%23ffffff" stroke-width="1" /%3E%3C/svg%3E') repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Report Header */
+.report-header {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.report-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 0 0.3rem #60a5fa, 0 0 0.6rem #2563eb;
+  margin-bottom: 0.3rem;
+  line-height: 1.1;
+}
+
+.report-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+/* Report Sections */
+.report-section {
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.summary { animation-delay: 0.05s; }
+.product-details { animation-delay: 0.1s; }
+.ingredients { animation-delay: 0.15s; }
+.insights { animation-delay: 0.2s; }
+
+.section-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 0 0.2rem #2563eb;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -0.3rem;
+  left: 0;
+  width: 2rem;
+  height: 2px;
+  background: linear-gradient(to right, #60a5fa, #2563eb);
+  border-radius: 1px;
+  transition: width 0.25s ease;
+}
+
+.section-title:hover::after {
+  width: 3.5rem;
+}
+
+/* Summary Section */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.6rem;
+}
+
+.summary-item {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0.15rem 0.4rem rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.summary-item:hover {
+  transform: translateY(-0.1rem);
+  box-shadow: 0 0.3rem 0.6rem rgba(37, 99, 235, 0.2);
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+  display: block;
+}
+
+.summary-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 0.15rem;
+}
+
+.summary-value.safe {
+  color: #10b981;
+  text-shadow: 0 0 0.2rem rgba(16, 185, 129, 0.35);
+}
+
+.summary-value.warning {
+  color: #ef4444;
+  text-shadow: 0 0 0.2rem rgba(239, 68, 68, 0.35);
+}
+
+/* Product Details Section */
+.product-container {
+  display: flex;
+  justify-content: center;
+}
+
+.product-image {
+  width: 100%;
+  max-width: 13rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0.15rem 0.4rem rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.015);
+}
+
+/* Ingredients Section */
+.ingredients-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.6rem;
+}
+
+.ingredient-item {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0.15rem 0.4rem rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ingredient-item:hover {
+  transform: translateY(-0.1rem);
+  box-shadow: 0 0.3rem 0.6rem rgba(37, 99, 235, 0.2);
+}
+
+.ingredient-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex: 1;
+  word-wrap: break-word;
+  padding-right: 0.3rem;
+}
+
+.ingredient-grade {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.no-data {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Insights Section */
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem; /* Increased for larger charts */
+  padding-bottom: 1.5rem; /* Increased to ensure no cutoff */
+}
+
+.chart-box {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1.5rem; /* Increased for larger charts */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0.15rem 0.4rem rgba(0, 0, 0, 0.08);
+  text-align: center;
+  min-height: 400px; /* Increased to fit 350px chart + padding + title */
+}
+
+.chart-title {
+  font-size: 1rem; /* Slightly increased for readability */
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.75rem; /* Increased for spacing */
+}
+
+.insights-summary {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  margin-top: 0.75rem; /* Increased for spacing */
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar Styling */
+.report-card::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+.report-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 0.5rem;
+}
+
+.report-card::-webkit-scrollbar-thumb {
+  background: #2563eb;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.report-card::-webkit-scrollbar-thumb:hover {
+  background: #1d4ed8;
+}
+
+/* Responsive Design */
+@media (min-width: 1280px) {
+  .report-card {
+    padding: 1.75rem;
+    width: 80%;
+  }
+  .report-title {
+    font-size: 2.25rem;
+  }
+  .report-subtitle {
+    font-size: 0.95rem;
+  }
+  .section-title {
+    font-size: 1.625rem;
+  }
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(8.5rem, 1fr));
+    gap: 0.75rem;
+  }
+  .summary-item {
+    padding: 0.75rem;
+  }
+  .summary-value {
+    font-size: 1.25rem;
+  }
+  .product-image {
+    max-width: 16rem;
+  }
+  .ingredients-list {
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  }
+  .ingredient-item {
+    padding: 0.6rem;
+  }
+  .ingredient-name {
+    font-size: 0.9rem;
+  }
+  .ingredient-grade {
+    font-size: 0.8rem;
+  }
+  .insights-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem; /* Increased for larger charts */
+  }
+  .chart-box {
+    padding: 1.75rem; /* Increased for larger charts */
+    min-height: 420px; /* Adjusted for 350px chart */
+  }
+  .chart-title {
+    font-size: 1.1rem; /* Increased for readability */
+  }
+  .insights-summary {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .report-card {
+    padding: 1.5rem;
+    width: 85%;
+  }
+  .report-title {
+    font-size: 2rem;
+  }
+  .section-title {
+    font-size: 1.5rem;
+  }
+  .product-image {
+    max-width: 15rem;
+  }
+  .ingredients-list {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+  .chart-box {
+    min-height: 400px; /* Ensure chart fits */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .report-card {
+    padding: 1.25rem;
+    width: 85%;
+  }
+  .report-title {
+    font-size: 1.875rem;
+  }
+  .section-title {
+    font-size: 1.375rem;
+  }
+  .product-image {
+    max-width: 14rem;
+  }
+  .ingredients-list {
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  }
+  .chart-box {
+    min-height: 400px; /* Ensure chart fits */
+  }
+}
+
+@media (max-width: 767px) {
+  .report-card {
+    padding: 0.9rem;
+    width: 90%;
+    margin: 1rem auto;
+  }
+  .report-title {
+    font-size: 1.625rem;
+  }
+  .report-subtitle {
+    font-size: 0.85rem;
+  }
+  .section-title {
+    font-size: 1.25rem;
+  }
+  .section-title::after {
+    width: 1.75rem;
+  }
+  .section-title:hover::after {
+    width: 2.75rem;
+  }
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .summary-item {
+    padding: 0.5rem;
+  }
+  .summary-label {
+    font-size: 0.75rem;
+  }
+  .summary-value {
+    font-size: 1rem;
+  }
+  .product-image {
+    max-width: 11rem;
+  }
+  .ingredients-list {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .ingredient-item {
+    padding: 0.4rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.15rem;
+  }
+  .ingredient-name {
+    font-size: 0.8rem;
+    padding-right: 0;
+  }
+  .ingredient-grade {
+    font-size: 0.7rem;
+  }
+  .chart-box {
+    padding: 1rem; /* Adjusted for smaller screens */
+    min-height: 380px; /* Slightly reduced but still fits 350px chart */
+  }
+  .chart-title {
+    font-size: 0.9rem;
+  }
+  .insights-summary {
+    font-size: 0.85rem;
+    padding: 0.4rem;
+  }
+}
