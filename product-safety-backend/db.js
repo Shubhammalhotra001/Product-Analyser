@@ -2,30 +2,32 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  }
+};
 
-  const imageSchema = new mongoose.Schema({
-    originalFilename: String,
-    imageKey: String,
-    text: String,
-    s3Url: String,
-    extractedText: String,
-    uploadedAt: { type: Date, default: Date.now },
-  
-    // 👇 ADD THIS LINE
-    gradedingredients: [
-      {
-        name: String,
-        grade: String
-      }
-    ]
-  });
+const imageSchema = new mongoose.Schema({
+  originalFilename: String,
+  imageKey: String,
+  text: String,
+  s3Url: String,
+  extractedText: String,
+  uploadedAt: { type: Date, default: Date.now },
+
+  gradedIngredients: [
+    {
+      name: String,
+      grade: String
+    }
+  ]
+});
 
 const ImageModel = mongoose.model('Image', imageSchema);
 
-module.exports = { ImageModel };
+module.exports = { connectDB, ImageModel };
