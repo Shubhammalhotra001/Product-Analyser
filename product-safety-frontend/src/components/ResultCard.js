@@ -148,13 +148,13 @@ const ResultCard = React.memo(({ result }) => {
         <div className="insights-grid">
           <div className="chart-box">
             <h3 className="chart-title">Safety Distribution</h3>
-            <PieChart width={350} height={350}>
+            <PieChart width={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350} height={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350}>
               <Pie
                 data={chartData.pieData}
                 cx="60%"
                 cy="50%"
-                innerRadius={50}
-                outerRadius={80}
+                innerRadius={window.innerWidth < 768 ? 40 : 50}
+                outerRadius={window.innerWidth < 768 ? 65 : 80}
                 paddingAngle={5}
                 dataKey="value"
                 label={({ name, value }) => value > 0 ? `${name}: ${value}` : null}
@@ -170,12 +170,12 @@ const ResultCard = React.memo(({ result }) => {
           </div>
           <div className="chart-box">
             <h3 className="chart-title">Grade Breakdown</h3>
-            <BarChart width={350} height={350} data={chartData.barData} margin={{ top: 50, right: 30, bottom: 30, left: 30 }}>
+            <BarChart width={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350} height={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350} data={chartData.barData} margin={{ top: 50, right: 30, bottom: 30, left: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
               <XAxis dataKey="name" hide />
               <YAxis stroke="#ffffff" tick={{ fontSize: 10 }} domain={[0, 'dataMax + 1']} />
               <Tooltip formatter={(value, name) => [`${value} items`, name]} />
-              <Bar dataKey="count" barSize={40} radius={[6, 6, 0, 0]}>
+              <Bar dataKey="count" barSize={window.innerWidth < 768 ? 30 : 40} radius={[6, 6, 0, 0]}>
                 {chartData.barData.map((entry, index) => (
                   <Cell key={`bar-${index}`} fill={entry.fill} />
                 ))}
@@ -185,17 +185,17 @@ const ResultCard = React.memo(({ result }) => {
                   angle={-90}
                   offset={10}
                   fill="#ffffff"
-                  fontSize={14}
+                  fontSize={window.innerWidth < 768 ? 12 : 14}
                 />
               </Bar>
             </BarChart>
           </div>
-        </div>
         <p className="insights-summary">
           {chartData.safePercentage >= 60
             ? `✅ Product is ${chartData.safePercentage}% safe`
             : `⚠️ Product safety is only ${chartData.safePercentage}%`}
         </p>
+        </div>
       </section>
     </div>
   );
