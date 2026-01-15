@@ -9,6 +9,7 @@ function ImageUpload({ category, onClose }) {
   const [uploadMessage, setUploadMessage] = useState('');
   const [gradedIngredients, setGradedIngredients] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Added loading state
 
   // Prevent body scrolling when results are shown
   useEffect(() => {
@@ -24,10 +25,12 @@ function ImageUpload({ category, onClose }) {
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
-    setFile(selected);
-    setPreviewURL(URL.createObjectURL(selected));
-    setUploadMessage('');
-    setGradedIngredients([]);
+    if (selected) {
+      setFile(selected);
+      setPreviewURL(URL.createObjectURL(selected));
+      setUploadMessage('');
+      setGradedIngredients([]);
+    }
   };
 
   const handleUpload = async () => {
@@ -35,8 +38,12 @@ function ImageUpload({ category, onClose }) {
       alert('Please select a file first!');
       return;
     }
+
+    setIsLoading(true); // Start loading
+
     const formData = new FormData();
     formData.append('image', file);
+    
     try {
       const res = await axios.post(`http://localhost:5000/upload?category=${category}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -47,6 +54,8 @@ function ImageUpload({ category, onClose }) {
       setShowResults(true);
     } catch (err) {
       setUploadMessage('❌ Upload failed');
+    } finally {
+      setIsLoading(false); // Stop loading regardless of success/fail
     }
   };
 
@@ -56,7 +65,7 @@ function ImageUpload({ category, onClose }) {
         <ResultCard
           result={{
             url: previewURL,
-            text: 'Extracted ingredients here', // Replace with actual text if available
+            text: 'Extracted ingredients here',
             gradedIngredients,
           }}
         />
@@ -71,24 +80,33 @@ function ImageUpload({ category, onClose }) {
     <div className="popup-overlay">
       <div className="popup-content">
         <h2 className="popup-title">{category.charAt(0).toUpperCase() + category.slice(1)} Analysis</h2>
+        
         <label className="file-input-label">
           Choose Image
           <input type="file" onChange={handleFileChange} className="file-input" />
         </label>
+        
         {previewURL && (
           <div className="preview-container">
             <img src={previewURL} alt="Preview" className="preview-image" />
           </div>
         )}
-        <button className="upload-btn" onClick={handleUpload}>
-          Upload & Analyze
+        
+        <button 
+          className="upload-btn" 
+          onClick={handleUpload} 
+          disabled={isLoading} // Disable while loading
+        >
+          {isLoading ? <div className="loader"></div> : 'Upload & Analyze'}
         </button>
+        
         {uploadMessage && (
           <p className={`upload-message ${uploadMessage.startsWith('✅') ? 'success' : 'error'}`}>
             {uploadMessage}
           </p>
         )}
-        <button className="close-btn" onClick={onClose}>
+        
+        <button className="close-btn" onClick={onClose} disabled={isLoading}>
           Close
         </button>
       </div>

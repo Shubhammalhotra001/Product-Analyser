@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, YAxis, CartesianGrid, LabelList } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, YAxis, CartesianGrid, LabelList ,XAxis } from 'recharts';
 import './ResultCard.css';
 
 // Utility function to determine colors based on grade
@@ -9,12 +9,12 @@ const getColor = (grade) => {
       return { background: '#6b7280', text: '#d1d5db', border: '#4b5563' };
     case '1':
       return { background: '#10b981', text: '#d1fae5', border: '#059669' };
+    case '2':
+      return { background: '#1e3a8a', text: '#dbeafe', border: '#1e40af' };
     case '3':
       return { background: '#f59e0b', text: '#fef3c7', border: '#d97706' };
-    case '5':
-      return { background: '#ef4444', text: '#fee2e2', border: '#dc2626' };
     default:
-      return { background: '#1e3a8a', text: '#dbeafe', border: '#1e40af' };
+      return { background: '#6b7280', text: '#d1d5db', border: '#4b5563' };
   }
 };
 
@@ -30,13 +30,15 @@ const ResultCard = React.memo(({ result }) => {
       return {
         safePercentage: 0,
         pieData: [
-          { name: 'Safe', value: 0 },
-          { name: 'Other', value: 0 },
+          { name: 'Safe', value: 0, fill: '#10b981' },
+          { name: 'Moderate', value: 0, fill: '#1e40af' },
+          { name: 'Unsafe', value: 0, fill: '#f59e0b' },
+          { name: 'Unknown', value: 0, fill: '#6b7280' },
         ],
         barData: [
           { name: 'Safe', count: 0, fill: '#10b981' },
-          { name: 'Moderate', count: 0, fill: '#f59e0b' },
-          { name: 'Unsafe', count: 0, fill: '#ef4444' },
+          { name: 'Moderate', count: 0, fill: '#1e40af' },
+          { name: 'Unsafe', count: 0, fill: '#f59e0b' },
           { name: 'Unknown', count: 0, fill: '#6b7280' },
         ],
       };
@@ -45,28 +47,28 @@ const ResultCard = React.memo(({ result }) => {
     const total = result.gradedIngredients.length;
     const counts = {
       safe: result.gradedIngredients.filter(item => item.grade === '1').length,
-      moderate: result.gradedIngredients.filter(item => item.grade === '3').length,
-      unsafe: result.gradedIngredients.filter(item => item.grade === '5').length,
+      moderate: result.gradedIngredients.filter(item => item.grade === '2').length,
+      unsafe: result.gradedIngredients.filter(item => item.grade === '3').length,
       unknown: result.gradedIngredients.filter(item => item.grade === 'Unknown').length,
     };
-    const safePercentage = total > 0 ? Math.round((counts.safe / total) * 100) : 0;
+    const safePercentage = total > 0 ? Math.round(((counts.safe + counts.moderate) / total) * 100) : 0;
 
     return {
       safePercentage,
       pieData: [
-        { name: 'Safe', value: counts.safe },
-        { name: 'Other', value: total - counts.safe },
+        { name: 'Safe', value: counts.safe, fill: '#10b981' },
+        { name: 'Moderate', value: counts.moderate, fill: '#1e40af' },
+        { name: 'Unsafe', value: counts.unsafe, fill: '#f59e0b' },
+        { name: 'Unknown', value: counts.unknown, fill: '#6b7280' },
       ],
       barData: [
         { name: 'Safe', count: counts.safe, fill: '#10b981' },
-        { name: 'Moderate', count: counts.moderate, fill: '#f59e0b' },
-        { name: 'Unsafe', count: counts.unsafe, fill: '#ef4444' },
+        { name: 'Moderate', count: counts.moderate, fill: '#1e40af' },
+        { name: 'Unsafe', count: counts.unsafe, fill: '#f59e0b' },
         { name: 'Unknown', count: counts.unknown, fill: '#6b7280' },
       ],
     };
   }, [result]);
-
-  const PIE_COLORS = ['#10b981', '#6b7280'];
 
   if (!result?.gradedIngredients || !Array.isArray(result.gradedIngredients)) {
     return (
@@ -149,17 +151,17 @@ const ResultCard = React.memo(({ result }) => {
             <PieChart width={350} height={350}>
               <Pie
                 data={chartData.pieData}
-                cx="50%"
+                cx="60%"
                 cy="50%"
                 innerRadius={50}
                 outerRadius={80}
                 paddingAngle={5}
                 dataKey="value"
-                label={({ name, value }) => `${name}: ${value}`}
+                label={({ name, value }) => value > 0 ? `${name}: ${value}` : null}
                 labelLine={{ stroke: '#ffffff', strokeWidth: 1 }}
               >
                 {chartData.pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </Pie>
               <Tooltip formatter={(value, name) => [`${value} items`, name]} />
@@ -170,8 +172,9 @@ const ResultCard = React.memo(({ result }) => {
             <h3 className="chart-title">Grade Breakdown</h3>
             <BarChart width={350} height={350} data={chartData.barData} margin={{ top: 50, right: 30, bottom: 30, left: 30 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-              <YAxis stroke="#ffffff" tick={{ fontSize: 10 }} />
-              <Tooltip formatter={(value) => `${value} items`} />
+              <XAxis dataKey="name" hide />
+              <YAxis stroke="#ffffff" tick={{ fontSize: 10 }} domain={[0, 'dataMax + 1']} />
+              <Tooltip formatter={(value, name) => [`${value} items`, name]} />
               <Bar dataKey="count" barSize={40} radius={[6, 6, 0, 0]}>
                 {chartData.barData.map((entry, index) => (
                   <Cell key={`bar-${index}`} fill={entry.fill} />
