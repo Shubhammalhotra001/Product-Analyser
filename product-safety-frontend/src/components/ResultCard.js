@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, YAxis, CartesianGrid, LabelList ,XAxis } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, YAxis, CartesianGrid, LabelList, XAxis } from 'recharts';
 import './ResultCard.css';
 
 // Utility function to determine colors based on grade
@@ -20,10 +20,54 @@ const getColor = (grade) => {
 
 const ResultCard = React.memo(({ result }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     requestAnimationFrame(() => setIsLoaded(true));
   }, []);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const chartConfig = useMemo(() => {
+    if (windowWidth < 480) {
+      return {
+        width: Math.min(280, windowWidth - 60),
+        height: 280,
+        pieInner: 35,
+        pieOuter: 60,
+        pieCx: '50%',
+        barSize: 25,
+        labelFontSize: 11,
+        margin: { top: 40, right: 20, bottom: 25, left: 20 }
+      };
+    } else if (windowWidth < 768) {
+      return {
+        width: Math.min(320, windowWidth - 80),
+        height: 320,
+        pieInner: 40,
+        pieOuter: 70,
+        pieCx: '50%',
+        barSize: 30,
+        labelFontSize: 12,
+        margin: { top: 45, right: 25, bottom: 30, left: 25 }
+      };
+    } else {
+      return {
+        width: 350,
+        height: 350,
+        pieInner: 50,
+        pieOuter: 80,
+        pieCx: '50%',
+        barSize: 40,
+        labelFontSize: 14,
+        margin: { top: 50, right: 30, bottom: 30, left: 30 }
+      };
+    }
+  }, [windowWidth]);
 
   const chartData = useMemo(() => {
     if (!result?.gradedIngredients || !Array.isArray(result.gradedIngredients)) {
@@ -51,7 +95,8 @@ const ResultCard = React.memo(({ result }) => {
       unsafe: result.gradedIngredients.filter(item => item.grade === '3').length,
       unknown: result.gradedIngredients.filter(item => item.grade === 'Unknown').length,
     };
-    const safePercentage = total > 0 ? Math.round(((counts.safe + counts.moderate) / total) * 100) : 0;
+    const knownTotal = total - counts.unknown;
+    const safePercentage = knownTotal > 0 ? Math.round(((counts.safe + counts.moderate) / knownTotal * 100)) : 0;
 
     return {
       safePercentage,
@@ -148,13 +193,13 @@ const ResultCard = React.memo(({ result }) => {
         <div className="insights-grid">
           <div className="chart-box">
             <h3 className="chart-title">Safety Distribution</h3>
-            <PieChart width={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350} height={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350}>
+            <PieChart width={chartConfig.width} height={chartConfig.height}>
               <Pie
                 data={chartData.pieData}
-                cx="60%"
+                cx={chartConfig.pieCx}
                 cy="50%"
-                innerRadius={window.innerWidth < 768 ? 40 : 50}
-                outerRadius={window.innerWidth < 768 ? 65 : 80}
+                innerRadius={chartConfig.pieInner}
+                outerRadius={chartConfig.pieOuter}
                 paddingAngle={5}
                 dataKey="value"
                 label={({ name, value }) => value > 0 ? `${name}: ${value}` : null}
@@ -170,12 +215,12 @@ const ResultCard = React.memo(({ result }) => {
           </div>
           <div className="chart-box">
             <h3 className="chart-title">Grade Breakdown</h3>
-            <BarChart width={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350} height={window.innerWidth < 768 ? Math.min(300, window.innerWidth - 80) : 350} data={chartData.barData} margin={{ top: 50, right: 30, bottom: 30, left: 30 }}>
+            <BarChart width={chartConfig.width} height={chartConfig.height} data={chartData.barData} margin={chartConfig.margin}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
               <XAxis dataKey="name" hide />
               <YAxis stroke="#ffffff" tick={{ fontSize: 10 }} domain={[0, 'dataMax + 1']} />
               <Tooltip formatter={(value, name) => [`${value} items`, name]} />
-              <Bar dataKey="count" barSize={window.innerWidth < 768 ? 30 : 40} radius={[6, 6, 0, 0]}>
+              <Bar dataKey="count" barSize={chartConfig.barSize} radius={[6, 6, 0, 0]}>
                 {chartData.barData.map((entry, index) => (
                   <Cell key={`bar-${index}`} fill={entry.fill} />
                 ))}
@@ -185,7 +230,7 @@ const ResultCard = React.memo(({ result }) => {
                   angle={-90}
                   offset={10}
                   fill="#ffffff"
-                  fontSize={window.innerWidth < 768 ? 12 : 14}
+                  fontSize={chartConfig.labelFontSize}
                 />
               </Bar>
             </BarChart>
@@ -194,9 +239,14 @@ const ResultCard = React.memo(({ result }) => {
         </div>
         <p className="insights-summary">
           {chartData.safePercentage >= 60
-            ? `✅ Product is ${chartData.safePercentage}% safe`
+            ? `✅ Product is ${chartData.safePercentage}% safe `
             : `⚠️ Product safety is only ${chartData.safePercentage}%`}
         </p>
+        {chartData.pieData.find(item => item.name === 'Unknown')?.value > 0 && (
+          <p className="insights-summary" >
+            ℹ️ {chartData.pieData.find(item => item.name === 'Unknown').value} unknown item{chartData.pieData.find(item => item.name === 'Unknown').value > 1 ? 's' : ''} excluded from safety calculation
+          </p>
+          )}
       </section>
     </div>
   );
