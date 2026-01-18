@@ -190,12 +190,13 @@ const ResultCard = React.memo(({ result }) => {
               </Bar>
             </BarChart>
           </div>
+        
+        </div>
         <p className="insights-summary">
           {chartData.safePercentage >= 60
             ? `✅ Product is ${chartData.safePercentage}% safe`
             : `⚠️ Product safety is only ${chartData.safePercentage}%`}
         </p>
-        </div>
       </section>
     </div>
   );
