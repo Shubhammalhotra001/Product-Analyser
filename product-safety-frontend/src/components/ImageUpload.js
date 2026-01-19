@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ResultCard from './ResultCard';
+import ReuploadDialogue from './ReuploadDialogue';
 import './ImageUpload.css';
 
 function ImageUpload({ category, onClose }) {
@@ -9,11 +10,12 @@ function ImageUpload({ category, onClose }) {
   const [uploadMessage, setUploadMessage] = useState('');
   const [gradedIngredients, setGradedIngredients] = useState([]);
   const [showResults, setShowResults] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Added loading state
+  const [showReuploadDialogue, setShowReuploadDialogue] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Prevent body scrolling when results are shown
   useEffect(() => {
-    if (showResults) {
+    if (showResults || showReuploadDialogue) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
@@ -21,7 +23,7 @@ function ImageUpload({ category, onClose }) {
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [showResults]);
+  }, [showResults, showReuploadDialogue]);
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
@@ -39,7 +41,7 @@ function ImageUpload({ category, onClose }) {
       return;
     }
 
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
 
     const formData = new FormData();
     formData.append('image', file);
@@ -51,14 +53,49 @@ function ImageUpload({ category, onClose }) {
       const { filename, gradedIngredients } = res.data;
       setUploadMessage(`✅ Uploaded: ${filename}`);
       setGradedIngredients(gradedIngredients || []);
-      setShowResults(true);
+      
+      // Check if 80% or more ingredients are unknown
+      const totalIngredients = gradedIngredients.length;
+      const unknownCount = gradedIngredients.filter(item => item.grade === 'Unknown').length;
+      const unknownPercentage = (unknownCount / totalIngredients) * 100;
+      
+      if (unknownPercentage >= 80) {
+        setShowReuploadDialogue(true);
+      } else {
+        setShowResults(true);
+      }
     } catch (err) {
       setUploadMessage('❌ Upload failed');
     } finally {
-      setIsLoading(false); // Stop loading regardless of success/fail
+      setIsLoading(false);
     }
   };
 
+  const handleReupload = () => {
+    // Reset state for reuploading
+    setShowReuploadDialogue(false);
+    setFile(null);
+    setPreviewURL(null);
+    setUploadMessage('');
+    setGradedIngredients([]);
+  };
+
+  const handleViewResultsAnyway = () => {
+    setShowReuploadDialogue(false);
+    setShowResults(true);
+  };
+
+  // Show reupload dialogue
+  if (showReuploadDialogue) {
+    return (
+      <ReuploadDialogue
+        onReupload={handleReupload}
+        onClose={handleViewResultsAnyway}
+      />
+    );
+  }
+
+  // Show results
   if (showResults) {
     return (
       <div className="results-overlay">
@@ -95,7 +132,7 @@ function ImageUpload({ category, onClose }) {
         <button 
           className="upload-btn" 
           onClick={handleUpload} 
-          disabled={isLoading} // Disable while loading
+          disabled={isLoading}
         >
           {isLoading ? <div className="loader"></div> : 'Upload & Analyze'}
         </button>

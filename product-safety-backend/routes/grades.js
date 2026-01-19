@@ -1,23 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const { ImageModel } = require('../db');
-const { gradeIngredients } = require('../gradeutil'); // ✅ Corrected import
+const { gradeIngredients } = require('../gradeutil'); 
 
 // GET /grade/:id
 router.get('/:id', async (req, res) => {
   try {
     const imageId = req.params.id;
 
-    // 🔍 Fetch image doc from MongoDB
+    //  Fetch image doc from MongoDB
     const imageData = await ImageModel.findById(imageId);
     if (!imageData) {
       return res.status(404).json({ error: 'Image not found' });
     }
 
-    // 🧠 Grade ingredients using OCR text
-    const graded = gradeIngredients(imageData.text); // ✅ Correct function call
+    //  Grade ingredients using OCR text
+    const graded = gradeIngredients(imageData.text); //  Correct function call
 
-    // 💾 Save back to MongoDB
+    //  Save back to MongoDB
     imageData.gradedIngredients = graded;
     await imageData.save();
 
