@@ -12,6 +12,9 @@ connectDB();
 
 // Routes
 app.use('/upload', uploadRoutes);
+app.get('/', (req, res) => {
+  res.json({ message: '✅ Product Safety Analysis API Running' });
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;
