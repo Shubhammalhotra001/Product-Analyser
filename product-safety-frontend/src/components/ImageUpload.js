@@ -13,6 +13,8 @@ function ImageUpload({ category, onClose }) {
   const [showReuploadDialogue, setShowReuploadDialogue] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
   // Prevent body scrolling when results are shown
   useEffect(() => {
     if (showResults || showReuploadDialogue) {
@@ -47,7 +49,7 @@ function ImageUpload({ category, onClose }) {
     formData.append('image', file);
     
     try {
-      const res = await axios.post(`http://localhost:5000/upload?category=${category}`, formData, {
+      const res = await axios.post(`${API_URL}/upload?category=${category}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const { filename, gradedIngredients } = res.data;
